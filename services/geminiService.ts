@@ -21,11 +21,23 @@ export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnaly
             },
           },
           {
-            text: `Analyze this image of a fruit (or fruits) acting as an expert agricultural quality grader. 
-            Identify the fruit, determine its ripeness level (0-100), assign a quality grade (A=Premium, B=Standard, C=Poor), 
-            detect any visible defects, estimate sugar content based on visual indicators, and predict shelf life.
-            Also provide scores (0-100) for Color, Texture (visual firmness), and Shape.
-            If no fruit is detected, return null or an error indicating so.
+            text: `Act as a world-class expert agricultural quality grader. Analyze this image to detect the fruit or vegetable.
+            
+            Strictly output JSON. 
+
+            Tasks:
+            1. Identify the fruit/vegetable name. 
+            2. Determine ripeness (0-100%).
+            3. Classify Ripeness Stage: "Unripe", "Ripe", or "Overripe".
+            4. Assign Quality Grade: "A" (Premium/Perfect), "B" (Standard/Good), "C" (Poor/Defective).
+            5. Detect specific visible defects (bruises, mold, shriveling, discoloration). If none, return empty list.
+            6. Estimate sugar content (Low/Medium/High) based on ripeness visuals.
+            7. Estimate remaining shelf life (e.g., "3-4 days").
+            8. Provide nutritional highlights (2-3 short bullet points).
+            9. Score visual aspects (0-100): Color (vibrancy), Texture (firmness/skin quality), Shape (uniformity).
+            10. Provide a specific, helpful recommendation (e.g., "Perfect for smoothies", "Eat immediately").
+
+            IMPORTANT: If the image DOES NOT contain a fruit or vegetable, set "fruitType" to "Non-Fruit Object", "ripenessPercentage" to 0, and "recommendation" to "Please upload a clear image of a fruit or vegetable.".
             `,
           },
         ],
@@ -35,7 +47,7 @@ export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnaly
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            fruitType: { type: Type.STRING, description: "Common name of the fruit" },
+            fruitType: { type: Type.STRING, description: "Common name of the fruit or 'Non-Fruit Object'" },
             ripenessPercentage: { type: Type.NUMBER, description: "0 to 100 representing ripeness" },
             ripenessStage: { type: Type.STRING, enum: ["Unripe", "Ripe", "Overripe"] },
             qualityGrade: { type: Type.STRING, enum: ["A", "B", "C"] },
@@ -46,7 +58,7 @@ export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnaly
             colorScore: { type: Type.NUMBER, description: "0-100 score for visual color quality" },
             textureScore: { type: Type.NUMBER, description: "0-100 score for visual skin texture/firmness" },
             shapeScore: { type: Type.NUMBER, description: "0-100 score for shape uniformity" },
-            recommendation: { type: Type.STRING, description: "Actionable advice (e.g., 'Eat now', 'Wait 2 days', 'Discard')" },
+            recommendation: { type: Type.STRING, description: "Actionable advice" },
           },
           required: [
             "fruitType", "ripenessPercentage", "ripenessStage", "qualityGrade", 
@@ -65,6 +77,6 @@ export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnaly
     return data;
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
-    throw new Error("Failed to analyze image. Please try again.");
+    throw new Error("Failed to analyze image. Please ensure the API key is valid and try again.");
   }
 };
