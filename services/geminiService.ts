@@ -1,9 +1,15 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { FruitAnalysis } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize with the key from environment, defaulting to empty string if missing
+// to prevent crash on initialization, but allow catching the error during the call.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
 export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnalysis> => {
+  if (!process.env.API_KEY) {
+    throw new Error("API Key is missing. Please add VITE_API_KEY to your Vercel Environment Variables.");
+  }
+
   // Extract the base64 data if it includes the prefix
   const base64Data = base64Image.includes('base64,') 
     ? base64Image.split('base64,')[1] 
@@ -77,6 +83,10 @@ export const analyzeFruitImage = async (base64Image: string): Promise<FruitAnaly
     return data;
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
+    // Improve error message if it's likely an auth issue
+    if (error instanceof Error && error.message.includes("API key")) {
+        throw new Error("Invalid API Key. Please check your Vercel environment variables.");
+    }
     throw new Error("Failed to analyze image. Please ensure the API key is valid and try again.");
   }
 };
