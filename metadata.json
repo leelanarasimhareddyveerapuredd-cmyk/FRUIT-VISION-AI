@@ -1,0 +1,7 @@
+{
+  "name": "FruitVision AI",
+  "description": "Automatic fruit ripeness detection and quality grading using advanced AI image analysis.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
